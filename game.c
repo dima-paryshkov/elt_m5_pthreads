@@ -35,7 +35,7 @@ pthread_mutex_t mutex;
 
 int init(int argc, char **argv)
 {
-    flag = 0;
+    flag = 1;
     barrel_of_honey = 0;
 
     /* default option*/
