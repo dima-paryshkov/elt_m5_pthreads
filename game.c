@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <malloc.h>
 
 /*
  * barrel_of_honey - the volume of a barrel of honey in which
@@ -28,7 +29,7 @@ int delay_winnie_the_pooh;
 int portion_of_honey;
 int portion_of_honey_for_winnie;
 int count_of_bees;
-
+int *bees_num;
 int flag;
 
 pthread_mutex_t mutex;
@@ -62,12 +63,23 @@ int init(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    bees_num = (int*)malloc(count_of_bees * sizeof(int));
+    if (bees_num == NULL)
+    {
+        fprintf(stderr, "Error(./%s): malloc() return NULL\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    for (int i = 0; i < count_of_bees; i++)
+        bees_num[i] == i;
+
     pthread_mutex_init(&mutex, NULL);
     return EXIT_SUCCESS;
 }
 
-void *bees_routine(void)
+void *bees_routine(void *arg)
 {
+    int bee_num = *(int*)arg;
     int delay_for_bee;
 
     while (flag)
@@ -75,7 +87,15 @@ void *bees_routine(void)
         delay_for_bee = rand() % 5;
         sleep(delay_for_bee);
         pthread_mutex_lock(&mutex);
-        barrel_of_honey += portion_of_honey;
+        if (portion_of_honey == max_barrel_of_honey)
+        {
+            printf("bee[%d]: +1 to /dev/null. Volume of honey is max(%d)\n", bee_num, max_barrel_of_honey);
+        }
+        else   
+        {
+            barrel_of_honey += portion_of_honey;
+            printf("bee[%d]: +1 to honey. Volume of honey: %d\n", bee_num, portion_of_honey);
+        }
         pthread_mutex_unlock(&mutex);
     }
 }
@@ -87,4 +107,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error(%s): init()\n", argv[0]);
         return EXIT_FAILURE;
     }
+
+    free(bees_num);
 }
