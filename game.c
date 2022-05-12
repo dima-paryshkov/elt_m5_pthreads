@@ -66,6 +66,20 @@ int init(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
+void *bees_routine(void)
+{
+    int delay_for_bee;
+
+    while (flag)
+    {
+        delay_for_bee = rand() % 5;
+        sleep(delay_for_bee);
+        pthread_mutex_lock(&mutex);
+        barrel_of_honey += portion_of_honey;
+        pthread_mutex_unlock(&mutex);
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (init(argc, argv) == EXIT_FAILURE)
